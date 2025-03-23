@@ -26,9 +26,11 @@ I'm a Mechatronics Engineer turned Data Engineer, with a Master's degree in Arti
 
 ## 📫 Connect with me
 
+[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:jordineil@jordineil.com)
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jordineil)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/jordineil/)
 [![X](https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/JordiNeil)
+
 
 ---
 *This README is automatically updated with my latest GitHub activity*
