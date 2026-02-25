@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Birthday Countdown</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Quicksand:wght@400;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Quicksand', sans-serif;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ---- floating confetti / balloons ---- */
+    .bg-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .balloon {
+      position: absolute;
+      bottom: -80px;
+      font-size: 36px;
+      animation: floatBalloon linear infinite;
+      opacity: 0.85;
+    }
+
+    @keyframes floatBalloon {
+      0%   { transform: translateY(0) rotate(-5deg); opacity: 0.85; }
+      25%  { transform: translateY(-25vh) rotate(5deg); }
+      50%  { transform: translateY(-50vh) rotate(-5deg); }
+      75%  { transform: translateY(-75vh) rotate(5deg); }
+      100% { transform: translateY(-110vh) rotate(-5deg); opacity: 0; }
+    }
+
+    .star {
+      position: absolute;
+      border-radius: 50%;
+      background: #fff;
+      animation: twinkle ease-in-out infinite;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; transform: scale(1); }
+      50%       { opacity: 1;   transform: scale(1.4); }
+    }
+
+    /* ---- card ---- */
+    .card {
+      position: relative;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 28px;
+      padding: 52px 44px 48px;
+      max-width: 540px;
+      width: 92%;
+      text-align: center;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+      animation: cardIn 1s ease-out;
+    }
+
+    @keyframes cardIn {
+      0%   { opacity: 0; transform: translateY(50px) scale(0.94); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .cake-icon {
+      font-size: 72px;
+      display: inline-block;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-12px); }
+    }
+
+    .card h1 {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.4rem;
+      color: #fff;
+      margin: 20px 0 6px;
+      line-height: 1.2;
+    }
+
+    .card .subtitle {
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 36px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* ---- countdown grid ---- */
+    .countdown {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .time-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      min-width: 80px;
+    }
+
+    .time-value {
+      font-size: 3.2rem;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 14px;
+      width: 88px;
+      height: 88px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: -1px;
+      transition: background 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .time-value::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .time-value.pop {
+      animation: popNum 0.3s ease;
+    }
+
+    @keyframes popNum {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.12); background: rgba(255,255,255,0.2); }
+      100% { transform: scale(1); }
+    }
+
+    .time-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .separator {
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.3);
+      align-self: flex-start;
+      padding-top: 18px;
+      line-height: 88px;
+    }
+
+    .target-date {
+      margin-top: 32px;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.4);
+      letter-spacing: 0.06em;
+    }
+
+    /* ---- birthday screen ---- */
+    .birthday-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(10, 10, 30, 0.92);
+      backdrop-filter: blur(12px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 32px;
+      animation: fadeIn 1s ease;
+    }
+
+    .birthday-screen.show { display: flex; }
+
+    @keyframes fadeIn { 0%{opacity:0} 100%{opacity:1} }
+
+    .birthday-screen .big-emoji {
+      font-size: 90px;
+      animation: bounce 1.4s ease-in-out infinite;
+    }
+
+    .birthday-screen h1 {
+      font-family: 'Dancing Script', cursive;
+      font-size: 3.2rem;
+      color: #fff;
+      margin: 20px 0 12px;
+    }
+
+    .birthday-screen p {
+      font-size: 1.15rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.6;
+    }
+
+    /* ---- confetti pieces ---- */
+    .confetti-piece {
+      position: fixed;
+      top: -16px;
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      z-index: 201;
+      animation: confettiFall linear forwards;
+    }
+
+    @keyframes confettiFall {
+      0%   { transform: translateY(0) rotate(0deg) translateX(0); opacity: 1; }
+      50%  { transform: translateY(55vh) rotate(360deg) translateX(30px); }
+      100% { transform: translateY(110vh) rotate(720deg) translateX(-20px); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-layer" id="bgLayer"></div>
+
+  <div class="card">
+    <div class="cake-icon">🎂</div>
+    <h1>Birthday Countdown</h1>
+    <p class="subtitle">March 23 &nbsp;·&nbsp; Warsaw Time</p>
+
+    <div class="countdown">
+      <div class="time-block">
+        <div class="time-value" id="days">00</div>
+        <div class="time-label">Days</div>
+      </div>
+      <div class="separator">:</div>
+      <div class="time-block">
+        <div class="time-value" id="hours">00</div>
+        <div class="time-label">Hours</div>
+      </div>
+      <div class="separator">:</div>
+      <div class="time-block">
+        <div class="time-value" id="minutes">00</div>
+        <div class="time-label">Minutes</div>
+      </div>
+      <div class="separator">:</div>
+      <div class="time-block">
+        <div class="time-value" id="seconds">00</div>
+        <div class="time-label">Seconds</div>
+      </div>
+    </div>
+
+    <p class="target-date">🇵🇱 Targeting midnight · Europe/Warsaw</p>
+  </div>
+
+  <!-- shown when countdown hits zero -->
+  <div class="birthday-screen" id="birthdayScreen">
+    <div class="big-emoji">🎉</div>
+    <h1>Happy Birthday! 🎂</h1>
+    <p>The day has finally arrived!<br/>Wishing you all the happiness in the world.</p>
+    <p style="margin-top: 16px; font-size: 1.3rem;">🇵🇱 &nbsp;<em style="font-family:'Dancing Script',cursive;font-size:1.5rem;">Wszystkiego najlepszego!</em></p>
+  </div>
+
+  <script>
+    // Target: March 23, 2026 00:00:00 Europe/Warsaw (CET = UTC+1 before DST change on March 29)
+    const TARGET = new Date('2026-03-23T00:00:00+01:00');
+
+    const elDays    = document.getElementById('days');
+    const elHours   = document.getElementById('hours');
+    const elMinutes = document.getElementById('minutes');
+    const elSeconds = document.getElementById('seconds');
+    const screen    = document.getElementById('birthdayScreen');
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function popAnim(el) {
+      el.classList.remove('pop');
+      void el.offsetWidth; // reflow
+      el.classList.add('pop');
+    }
+
+    let prevValues = { d: -1, h: -1, m: -1, s: -1 };
+
+    function tick() {
+      const now  = Date.now();
+      const diff = TARGET.getTime() - now;
+
+      if (diff <= 0) {
+        elDays.textContent    = '00';
+        elHours.textContent   = '00';
+        elMinutes.textContent = '00';
+        elSeconds.textContent = '00';
+        screen.classList.add('show');
+        launchConfetti();
+        return;
+      }
+
+      const totalSec = Math.floor(diff / 1000);
+      const s = totalSec % 60;
+      const m = Math.floor(totalSec / 60) % 60;
+      const h = Math.floor(totalSec / 3600) % 24;
+      const d = Math.floor(totalSec / 86400);
+
+      if (d !== prevValues.d) { elDays.textContent    = pad(d); popAnim(elDays);    prevValues.d = d; }
+      if (h !== prevValues.h) { elHours.textContent   = pad(h); popAnim(elHours);   prevValues.h = h; }
+      if (m !== prevValues.m) { elMinutes.textContent = pad(m); popAnim(elMinutes); prevValues.m = m; }
+      if (s !== prevValues.s) { elSeconds.textContent = pad(s); popAnim(elSeconds); prevValues.s = s; }
+    }
+
+    tick();
+    setInterval(tick, 1000);
+
+    // ---- background stars ----
+    const bgLayer = document.getElementById('bgLayer');
+
+    for (let i = 0; i < 80; i++) {
+      const star = document.createElement('div');
+      star.classList.add('star');
+      const size = 1 + Math.random() * 2.5;
+      star.style.width  = size + 'px';
+      star.style.height = size + 'px';
+      star.style.left   = Math.random() * 100 + '%';
+      star.style.top    = Math.random() * 100 + '%';
+      star.style.animationDuration  = (2 + Math.random() * 4) + 's';
+      star.style.animationDelay     = (Math.random() * 4) + 's';
+      bgLayer.appendChild(star);
+    }
+
+    // ---- floating balloons ----
+    const balloonEmojis = ['🎈', '🎁', '🎀', '✨', '⭐', '🌟'];
+
+    function spawnBalloon() {
+      const el = document.createElement('span');
+      el.classList.add('balloon');
+      el.textContent = balloonEmojis[Math.floor(Math.random() * balloonEmojis.length)];
+      el.style.left  = Math.random() * 100 + '%';
+      el.style.fontSize = (24 + Math.random() * 20) + 'px';
+      const dur = 9 + Math.random() * 10;
+      el.style.animationDuration = dur + 's';
+      bgLayer.appendChild(el);
+      setTimeout(() => el.remove(), dur * 1000);
+    }
+
+    setInterval(spawnBalloon, 700);
+    for (let i = 0; i < 8; i++) setTimeout(spawnBalloon, i * 300);
+
+    // ---- confetti burst ----
+    function launchConfetti() {
+      const colors = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff922b','#cc5de8','#fff'];
+      for (let i = 0; i < 150; i++) {
+        const c = document.createElement('div');
+        c.classList.add('confetti-piece');
+        c.style.left             = Math.random() * 100 + '%';
+        c.style.background       = colors[Math.floor(Math.random() * colors.length)];
+        c.style.width            = (5 + Math.random() * 9)  + 'px';
+        c.style.height           = (5 + Math.random() * 9)  + 'px';
+        c.style.borderRadius     = Math.random() > 0.5 ? '50%' : '3px';
+        c.style.animationDuration = (2.5 + Math.random() * 3) + 's';
+        c.style.animationDelay   = (Math.random() * 2) + 's';
+        document.body.appendChild(c);
+      }
+    }
+  </script>
+</body>
+</html>
